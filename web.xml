@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:javaee="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+  <display-name>hd-data</display-name>
+
+  <!-- 参数定义了要装入的 Spring 配置文件。 -->
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:/config/spring/spring-beans.xml</param-value>
+  </context-param>
+
+    <!-- 编码过滤  -->
+  <filter>
+    <filter-name>Encoding</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>Encoding</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+ <!-- 监听器  -->
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+  
+  <!-- jersey API风格 -->
+  <servlet>
+    <servlet-name>hd-data</servlet-name>
+    <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+  	<init-param>    
+ 		<param-name>javax.ws.rs.Application</param-name>  
+         <param-value>com.zjtachao.hd.data.webapp.util.HdDataApplication</param-value>  
+    </init-param>	
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>hd-data</servlet-name>
+    <url-pattern>/rest/*</url-pattern>
+  </servlet-mapping>  
+  
+   <!-- druid  内置监控页面，路径是/druid/index.html -->
+	<servlet>       
+	  <servlet-name>DruidStatView</servlet-name>     
+	  <servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>  
+	</servlet>   
+	<servlet-mapping>     
+	   <servlet-name>DruidStatView</servlet-name>  
+	   <url-pattern>/druid/*</url-pattern>  
+	</servlet-mapping>   
+   
+   <!-- session 失效时间  -->
+  <session-config>
+    <session-timeout>1</session-timeout>
+  </session-config>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+</web-app>

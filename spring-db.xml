@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:p="http://www.springframework.org/schema/p"  
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-2.5.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	<!-- datasource config -->
+	<bean id="dataSource"  class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+		<!-- 基本属性 url、user、password -->
+		<property name="url" value="${zjtachao.druid.datasource.url}" />
+		<property name="username" value="${zjtachao.druid.datasource.userName}" />
+		<property name="password" value="${zjtachao.druid.datasource.password}" />
+		
+		<!-- 配置初始化大小、最小、最大 -->
+		<property name="initialSize" value="${zjtachao.druid.datasource.initialSize}" />
+		<property name="minIdle" value="${zjtachao.druid.datasource.maxIdle}" /> 
+		<property name="maxActive" value="${zjtachao.druid.datasource.maxActive}" />
+		
+		<!-- 配置获取连接等待超时的时间 -->
+		<property name="maxWait" value="${zjtachao.druid.datasource.maxWait}" />
+		
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="${zjtachao.druid.datasource.timeBetweenEvictionRunsMillis}" />
+		
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="${zjtachao.druid.datasource.minEvictableIdleTimeMillis}" />
+		
+		<property name="validationQuery" value="${zjtachao.druid.datasource.validationQuery}" />
+		<property name="testWhileIdle" value="${zjtachao.druid.datasource.testWhileIdle}" />
+		<property name="testOnBorrow" value="${zjtachao.druid.datasource.testOnBorrow}" />
+		<property name="testOnReturn" value="${zjtachao.druid.datasource.testOnReturn}" />
+		
+		<!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+		<property name="poolPreparedStatements" value="${zjtachao.druid.datasource.poolPreparedStatements}" />
+		<property name="maxPoolPreparedStatementPerConnectionSize" value="${zjtachao.druid.datasource.maxPoolPreparedStatementPerConnectionSize}" />
+		
+		<!-- 配置监控统计拦截的filters -->
+		<property name="filters" value="${zjtachao.druid.datasource.filters}" />	
+    </bean> 
+ 
+ 
+   <!-- 支持 @AspectJ 标记-->
+    <aop:aspectj-autoproxy/>
+
+	<context:annotation-config/>
+	<context:component-scan base-package="com.zjtachao.hd" />
+	
+	
+	<!-- mybatis --> 
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">  
+        <property name="dataSource" ref="dataSource" />  
+        <!-- 指定MyBatis配置文件 -->
+        <property name="configLocation"  value="classpath:config/deploy/mybatis.xml" />
+        <!-- 导入Mapper -->
+        <property name="mapperLocations" value="classpath*:config/sqlmap/*.xml" />
+    </bean>
+    
+    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">  
+        <constructor-arg ref="sqlSessionFactory" />    
+    </bean>	
+     
+        <!-- redis -->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="${redis.maxActive}" />
+        <property name="maxIdle" value="${redis.maxIdle}" />
+        <property name="maxWaitMillis" value="${redis.maxWait}" />
+        <property name="testOnBorrow" value="${redis.testOnBorrow}" />
+    </bean>
+	<bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+	    p:host-name="${redis.host}" p:port="${redis.port}"  p:password="${redis.password}" p:pool-config-ref="jedisPoolConfig" />
+	    
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">  
+        <property name="connectionFactory"   ref="jedisConnectionFactory" />  
+    </bean>    
+
+</beans>
